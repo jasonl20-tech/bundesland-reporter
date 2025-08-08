@@ -51,6 +51,17 @@ export const DocumentUploadForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.year || !formData.month || !formData.bundesland) {
+      toast({
+        title: "Fehlende Angaben",
+        description: "Bitte füllen Sie alle Pflichtfelder aus.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
