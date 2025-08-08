@@ -29,7 +29,18 @@ export const DocumentUploadForm = () => {
 
   const handleFileChange = (field: 'gesamtstunden' | 'schichtplan') => (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    console.log(`File selected for ${field}:`, file?.name);
     setFormData(prev => ({ ...prev, [field]: file }));
+  };
+
+  const triggerFileInput = (inputId: string) => {
+    console.log(`Triggering file input for: ${inputId}`);
+    const input = document.getElementById(inputId) as HTMLInputElement;
+    if (input) {
+      input.click();
+    } else {
+      console.error(`Input element not found: ${inputId}`);
+    }
   };
 
   const handleRuleChange = (index: number, value: string) => {
@@ -173,40 +184,42 @@ export const DocumentUploadForm = () => {
             {/* Upload Felder */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="gesamtstunden">Gesamtstundenübersicht</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                <Label htmlFor="gesamtstunden-file">Gesamtstundenübersicht</Label>
+                <div 
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => triggerFileInput('gesamtstunden-file')}
+                >
                   <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
                   <input
-                    id="gesamtstunden"
+                    id="gesamtstunden-file"
                     type="file"
                     accept=".pdf,.doc,.docx,.xlsx,.xls"
                     onChange={handleFileChange('gesamtstunden')}
                     className="hidden"
                   />
-                  <label htmlFor="gesamtstunden" className="cursor-pointer">
-                    <span className="text-sm text-muted-foreground">
-                      {formData.gesamtstunden ? formData.gesamtstunden.name : "Datei hochladen oder hier ablegen"}
-                    </span>
-                  </label>
+                  <span className="text-sm text-muted-foreground">
+                    {formData.gesamtstunden ? formData.gesamtstunden.name : "Datei hochladen oder hier ablegen"}
+                  </span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="schichtplan">Schichtplan</Label>
-                <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                <Label htmlFor="schichtplan-file">Schichtplan</Label>
+                <div 
+                  className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                  onClick={() => triggerFileInput('schichtplan-file')}
+                >
                   <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
                   <input
-                    id="schichtplan"
+                    id="schichtplan-file"
                     type="file"
                     accept=".pdf,.doc,.docx,.xlsx,.xls"
                     onChange={handleFileChange('schichtplan')}
                     className="hidden"
                   />
-                  <label htmlFor="schichtplan" className="cursor-pointer">
-                    <span className="text-sm text-muted-foreground">
-                      {formData.schichtplan ? formData.schichtplan.name : "Datei hochladen oder hier ablegen"}
-                    </span>
-                  </label>
+                  <span className="text-sm text-muted-foreground">
+                    {formData.schichtplan ? formData.schichtplan.name : "Datei hochladen oder hier ablegen"}
+                  </span>
                 </div>
               </div>
             </div>
