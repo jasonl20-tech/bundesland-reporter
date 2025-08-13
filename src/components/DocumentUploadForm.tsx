@@ -25,6 +25,7 @@ export const DocumentUploadForm = () => {
   });
   const [visibleRules, setVisibleRules] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
   const { toast } = useToast();
 
   const handleFileChange = (field: 'gesamtstunden' | 'schichtplan') => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +61,59 @@ export const DocumentUploadForm = () => {
     }
   };
 
+  const testWebhook = async () => {
+    setIsSubmitting(true);
+    setDebugInfo(null);
+    
+    try {
+      const testData = new FormData();
+      testData.append('test', 'true');
+      testData.append('timestamp', new Date().toISOString());
+      
+      console.log('Testing webhook...');
+      
+      const response = await fetch('https://ckwxlgumjxmczyuftlit.supabase.co/functions/v1/webhook-proxy', {
+        method: 'POST',
+        body: testData,
+      });
+      
+      const responseText = await response.text();
+      
+      setDebugInfo({
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Test erfolgreich!",
+          description: "Webhook-Verbindung funktioniert.",
+        });
+      } else {
+        toast({
+          title: "Test fehlgeschlagen",
+          description: `Status: ${response.status}`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Test error:', error);
+      setDebugInfo({
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+      toast({
+        title: "Test-Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -76,6 +130,7 @@ export const DocumentUploadForm = () => {
     setIsSubmitting(true);
 
     try {
+      setDebugInfo(null);
       const formDataToSend = new FormData();
       formDataToSend.append('year', formData.year);
       formDataToSend.append('month', formData.month);
@@ -99,6 +154,15 @@ export const DocumentUploadForm = () => {
         body: formDataToSend,
       });
 
+      const responseText = await response.text();
+      
+      setDebugInfo({
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText,
+        timestamp: new Date().toISOString()
+      });
+
       if (response.ok) {
         toast({
           title: "Erfolgreich gesendet!",
@@ -115,9 +179,16 @@ export const DocumentUploadForm = () => {
         });
         setVisibleRules(1);
       } else {
+        setDebugInfo(prev => ({ ...prev, error: 'Upload failed' }));
         throw new Error('Upload failed');
       }
     } catch (error) {
+      console.error('Submit error:', error);
+      setDebugInfo(prev => ({ 
+        ...prev, 
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }));
       toast({
         title: "Fehler beim Senden",
         description: "Es gab ein Problem beim Übertragen der Daten.",
@@ -252,21 +323,42 @@ export const DocumentUploadForm = () => {
               )}
             </div>
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-elegant transition-all duration-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                "Wird gesendet..."
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Daten übertragen
-                </>
-              )}
-            </Button>
+            {/* Test und Submit Buttons */}
+            <div className="grid md:grid-cols-2 gap-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={testWebhook}
+                disabled={isSubmitting}
+              >
+                🧪 Test Webhook
+              </Button>
+              
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-elegant transition-all duration-300"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  "Wird gesendet..."
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Daten übertragen
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Debug Info */}
+            {debugInfo && (
+              <div className="p-4 bg-muted/50 rounded-lg border">
+                <h3 className="font-semibold mb-2">Debug Information:</h3>
+                <pre className="text-xs overflow-auto">
+                  {JSON.stringify(debugInfo, null, 2)}
+                </pre>
+              </div>
+            )}
           </form>
         </Card>
       </div>

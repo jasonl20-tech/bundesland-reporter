@@ -27,7 +27,7 @@ serve(async (req) => {
     console.log('Form data received, forwarding to webhook...');
     
     // Forward the request to the external webhook
-    const response = await fetch('https://xlk.ai:5678/webhook/7b9f8290-9e23-474d-af86-eaa3d3777951', {
+    const response = await fetch('http://xlk.ai:5678/webhook/7b9f8290-9e23-474d-af86-eaa3d3777951', {
       method: 'POST',
       body: formData,
     });
