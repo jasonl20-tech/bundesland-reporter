@@ -94,7 +94,7 @@ export const DocumentUploadForm = () => {
         }
       });
 
-      const response = await fetch('/api/functions/v1/webhook-proxy', {
+      const response = await fetch('https://ckwxlgumjxmczyuftlit.supabase.co/functions/v1/webhook-proxy', {
         method: 'POST',
         body: formDataToSend,
       });
