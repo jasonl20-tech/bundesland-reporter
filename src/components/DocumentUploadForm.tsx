@@ -94,7 +94,7 @@ export const DocumentUploadForm = () => {
         }
       });
 
-      const response = await fetch('https://xlk.ai:5678/webhook/7b9f8290-9e23-474d-af86-eaa3d3777951', {
+      const response = await fetch('/api/functions/v1/webhook-proxy', {
         method: 'POST',
         body: formDataToSend,
       });
